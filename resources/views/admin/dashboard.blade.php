@@ -6,61 +6,61 @@
 <!-- Header trang -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <span class="badge bg-primary text-uppercase mb-1">Thống Kê Tổng Hợp</span>
-        <h1 class="h3 fw-bold text-dark mb-0">BẢNG ĐIỀU KHIỂN QUẢN TRỊ VIÊN</h1>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-uppercase mb-1 px-3 py-1 rounded-pill" style="font-size: 0.75rem;">Thống kê tổng hợp</span>
+        <h1 class="h3 fw-bold text-dark mb-0">Bảng điều khiển quản trị viên</h1>
     </div>
     <div>
-        <span class="badge bg-secondary p-2">Hôm nay: {{ date('d/m/Y') }}</span>
+        <span class="badge bg-light text-secondary border px-3 py-2 rounded-3">Hôm nay: {{ date('d/m/Y') }}</span>
     </div>
 </div>
 
-<!-- 4 Thẻ Thống Kê Chỉ Số Chính (F11 - Dashboard) -->
+<!-- 4 Thẻ Thống Kê Chỉ Số Chính -->
 <section class="row g-3 mb-4" aria-label="Các chỉ số thống kê hệ thống">
     <!-- Sinh viên -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-admin p-3 border-start border-primary border-4 shadow-sm">
-            <span class="text-uppercase small fw-bold text-secondary mb-1">Tài khoản Sinh viên</span>
+        <div class="card card-admin p-3 border-start border-primary border-4 shadow-sm rounded-3">
+            <span class="text-uppercase small fw-semibold text-secondary mb-1">Tài khoản sinh viên</span>
             <div class="h2 fw-bold text-primary mb-1">{{ number_format($stats['users']) }}</div>
-            <a href="{{ route('admin.users.index') }}" class="small text-decoration-none fw-semibold">[Xem chi tiết &gt;&gt;]</a>
+            <a href="{{ route('admin.users.index') }}" class="small text-decoration-none fw-medium text-primary">Xem chi tiết</a>
         </div>
     </div>
 
     <!-- Bài đăng chờ duyệt -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-admin p-3 border-start border-warning border-4 shadow-sm">
-            <span class="text-uppercase small fw-bold text-secondary mb-1">Bài đăng chờ duyệt</span>
+        <div class="card card-admin p-3 border-start border-warning border-4 shadow-sm rounded-3">
+            <span class="text-uppercase small fw-semibold text-secondary mb-1">Bài đăng chờ duyệt</span>
             <div class="h2 fw-bold text-warning mb-1">{{ number_format($stats['pending_items']) }}</div>
-            <a href="{{ route('admin.items.index', ['status' => 'pending']) }}" class="small text-decoration-none fw-semibold text-warning">[Kiểm duyệt ngay &gt;&gt;]</a>
+            <a href="{{ route('admin.items.index', ['status' => 'pending']) }}" class="small text-decoration-none fw-medium text-warning">Kiểm duyệt ngay</a>
         </div>
     </div>
 
     <!-- Đồ đã trao trả -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-admin p-3 border-start border-success border-4 shadow-sm">
-            <span class="text-uppercase small fw-bold text-secondary mb-1">Đồ đã trao trả thành công</span>
+        <div class="card card-admin p-3 border-start border-success border-4 shadow-sm rounded-3">
+            <span class="text-uppercase small fw-semibold text-secondary mb-1">Đồ đã trao trả thành công</span>
             <div class="h2 fw-bold text-success mb-1">{{ number_format($stats['returned_items']) }}</div>
-            <a href="{{ route('admin.items.index', ['status' => 'returned']) }}" class="small text-decoration-none fw-semibold text-success">[Xem danh sách &gt;&gt;]</a>
+            <a href="{{ route('admin.items.index', ['status' => 'returned']) }}" class="small text-decoration-none fw-medium text-success">Xem danh sách</a>
         </div>
     </div>
 
     <!-- Yêu cầu nhận đồ chờ duyệt -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-admin p-3 border-start border-danger border-4 shadow-sm">
-            <span class="text-uppercase small fw-bold text-secondary mb-1">Yêu cầu nhận đồ chờ duyệt</span>
+        <div class="card card-admin p-3 border-start border-danger border-4 shadow-sm rounded-3">
+            <span class="text-uppercase small fw-semibold text-secondary mb-1">Yêu cầu nhận đồ chờ duyệt</span>
             <div class="h2 fw-bold text-danger mb-1">{{ number_format($stats['pending_claims']) }}</div>
-            <a href="{{ route('admin.claims.index', ['status' => 'pending']) }}" class="small text-decoration-none fw-semibold text-danger">[Đối chiếu xử lý &gt;&gt;]</a>
+            <a href="{{ route('admin.claims.index', ['status' => 'pending']) }}" class="small text-decoration-none fw-medium text-danger">Đối chiếu xử lý</a>
         </div>
     </div>
 </section>
 
 <!-- Bảng 5 Yêu Cầu Nhận Đồ Mới Nhất -->
-<section class="card card-admin p-4 border-0 shadow-sm mb-4" aria-label="Yêu cầu nhận đồ mới nhất">
+<section class="card card-admin p-4 border-0 shadow-sm rounded-3 mb-4" aria-label="Yêu cầu nhận đồ mới nhất">
     <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-        <h2 class="h5 fw-bold text-dark text-uppercase mb-0 border-start border-primary border-4 ps-2">
-            5 Yêu Cầu Nhận Lại Đồ Mới Nhất Cần Xử Lý
+        <h2 class="h5 fw-bold text-dark mb-0 border-start border-primary border-4 ps-2">
+            5 yêu cầu nhận lại đồ mới nhất cần xử lý
         </h2>
-        <a href="{{ route('admin.claims.index') }}" class="btn btn-outline-primary btn-sm fw-bold">
-            [XEM TẤT CẢ YÊU CẦU]
+        <a href="{{ route('admin.claims.index') }}" class="btn btn-outline-primary btn-sm fw-medium px-3">
+            Xem tất cả yêu cầu
         </a>
     </div>
 
@@ -68,7 +68,7 @@
         <p class="text-muted small text-center py-4 mb-0">Hiện tại không có yêu cầu nhận đồ nào trong hệ thống.</p>
     @else
         <div class="table-responsive">
-            <table class="table table-hover align-middle small">
+            <table class="table table-hover align-middle small mb-0">
                 <thead class="table-light">
                     <tr>
                         <th class="py-2">Người yêu cầu</th>
@@ -83,8 +83,8 @@
                     @foreach($latestClaims as $claim)
                         <tr>
                             <td>
-                                <strong class="d-block">{{ $claim->user->name }}</strong>
-                                <span class="text-muted" style="font-size: 0.75rem;">MSSV: {{ $claim->user->student_code ?? 'N/A' }}</span>
+                                <strong class="d-block text-dark">{{ $claim->user->name }}</strong>
+                                <span class="text-muted" style="font-size: 0.75rem;">MSSV: {{ $claim->user->student_code ?? 'Chưa cập nhật' }}</span>
                             </td>
                             <td>
                                 <a href="{{ route('items.show', $claim->item) }}" target="_blank" class="fw-semibold text-dark text-decoration-none">
@@ -99,16 +99,16 @@
                             <td>{{ $claim->created_at->format('d/m/Y H:i') }}</td>
                             <td>
                                 @if($claim->status === 'pending')
-                                    <span class="badge bg-warning text-dark">[CHỜ DUYỆT]</span>
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Chờ duyệt</span>
                                 @elseif($claim->status === 'approved')
-                                    <span class="badge bg-success">[ĐÃ DUYỆT]</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Đã duyệt</span>
                                 @else
-                                    <span class="badge bg-secondary">[TỪ CHỐI]</span>
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Từ chối</span>
                                 @endif
                             </td>
                             <td class="text-end">
-                                <a href="{{ route('admin.claims.index') }}" class="btn btn-outline-primary btn-sm py-1 px-2 fw-semibold">
-                                    [XỬ LÝ]
+                                <a href="{{ route('admin.claims.index') }}" class="btn btn-primary btn-sm py-1 px-3 fw-medium">
+                                    Xử lý
                                 </a>
                             </td>
                         </tr>
@@ -122,31 +122,31 @@
 <!-- Các phím tắt quản lý nhanh -->
 <section class="row g-3" aria-label="Phím tắt quản lý">
     <div class="col-md-3">
-        <div class="card card-admin p-3 text-center">
-            <h3 class="h6 fw-bold mb-2">QUẢN LÝ BÀI ĐĂNG</h3>
+        <div class="card card-admin p-3 text-center rounded-3">
+            <h3 class="h6 fw-bold mb-2">Quản lý bài đăng</h3>
             <p class="small text-muted mb-3">Kiểm duyệt, phê duyệt hoặc gỡ bài đăng sai quy định.</p>
-            <a href="{{ route('admin.items.index') }}" class="btn btn-outline-primary btn-sm fw-bold">[TRUY CẬP]</a>
+            <a href="{{ route('admin.items.index') }}" class="btn btn-outline-primary btn-sm fw-medium">Truy cập</a>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card card-admin p-3 text-center">
-            <h3 class="h6 fw-bold mb-2">QUẢN LÝ DANH MỤC</h3>
+        <div class="card card-admin p-3 text-center rounded-3">
+            <h3 class="h6 fw-bold mb-2">Quản lý danh mục</h3>
             <p class="small text-muted mb-3">Thêm mới, sửa đổi hoặc kiểm tra các danh mục đồ dùng.</p>
-            <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-primary btn-sm fw-bold">[TRUY CẬP]</a>
+            <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-primary btn-sm fw-medium">Truy cập</a>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card card-admin p-3 text-center">
-            <h3 class="h6 fw-bold mb-2">QUẢN LÝ ĐỊA ĐIỂM</h3>
+        <div class="card card-admin p-3 text-center rounded-3">
+            <h3 class="h6 fw-bold mb-2">Quản lý địa điểm</h3>
             <p class="small text-muted mb-3">Quản trị các khu vực khuôn viên trường (Thư viện, Căn tin...).</p>
-            <a href="{{ route('admin.locations.index') }}" class="btn btn-outline-primary btn-sm fw-bold">[TRUY CẬP]</a>
+            <a href="{{ route('admin.locations.index') }}" class="btn btn-outline-primary btn-sm fw-medium">Truy cập</a>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card card-admin p-3 text-center">
-            <h3 class="h6 fw-bold mb-2">QUẢN LÝ NGƯỜI DÙNG</h3>
+        <div class="card card-admin p-3 text-center rounded-3">
+            <h3 class="h6 fw-bold mb-2">Quản lý người dùng</h3>
             <p class="small text-muted mb-3">Phân quyền tài khoản, khóa hoặc xóa thành viên vi phạm.</p>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary btn-sm fw-bold">[TRUY CẬP]</a>
+            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary btn-sm fw-medium">Truy cập</a>
         </div>
     </div>
 </section>

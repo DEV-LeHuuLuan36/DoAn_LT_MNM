@@ -3,57 +3,57 @@
 @section('title', 'Quản Lý Bài Đăng - HUIT Admin')
 
 @section('content')
-<div class="card card-admin p-4 border-0 shadow-sm">
+<div class="card card-admin p-4 border-0 shadow-sm rounded-3">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
         <div>
-            <span class="badge bg-primary text-uppercase mb-1">Kiểm duyệt nội dung</span>
-            <h1 class="h4 fw-bold text-dark mb-0">QUẢN LÝ TOÀN BỘ BÀI ĐĂNG</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-uppercase mb-1 px-3 py-1 rounded-pill" style="font-size: 0.75rem;">Kiểm duyệt nội dung</span>
+            <h1 class="h4 fw-bold text-dark mb-0">Quản lý toàn bộ bài đăng</h1>
         </div>
         <div>
-            <a href="{{ route('items.create') }}" target="_blank" class="btn btn-warning btn-sm fw-bold">
-                [+] ĐĂNG TIN MỚI (PHÍA CLIENT)
+            <a href="{{ route('items.create') }}" target="_blank" class="btn btn-warning btn-sm fw-semibold px-3 py-2">
+                Tạo bài đăng mới
             </a>
         </div>
     </div>
 
     <!-- Bộ lọc bài đăng -->
-    <form action="{{ route('admin.items.index') }}" method="GET" class="row g-2 mb-4 bg-light p-3 rounded border">
+    <form action="{{ route('admin.items.index') }}" method="GET" class="row g-2 mb-4 bg-light p-3 rounded-3 border">
         <div class="col-md-4">
-            <label for="keyword" class="form-label small fw-bold text-secondary text-uppercase mb-1">Tìm theo tiêu đề/mô tả:</label>
-            <input type="text" name="keyword" id="keyword" class="form-control form-control-sm" value="{{ request('keyword') }}" placeholder="Nhập từ khóa...">
+            <label for="keyword" class="form-label small fw-semibold text-secondary text-uppercase mb-1">Tìm theo tiêu đề hoặc mô tả:</label>
+            <input type="text" name="keyword" id="keyword" class="form-control form-control-sm py-2" value="{{ request('keyword') }}" placeholder="Nhập từ khóa...">
         </div>
         <div class="col-md-3">
-            <label for="status" class="form-label small fw-bold text-secondary text-uppercase mb-1">Trạng thái duyệt:</label>
-            <select name="status" id="status" class="form-select form-select-sm">
-                <option value="">-- Tất cả trạng thái --</option>
-                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>[CHỜ DUYỆT]</option>
-                <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>[ĐÃ DUYỆT]</option>
-                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>[TỪ CHỐI]</option>
-                <option value="returned" {{ request('status') === 'returned' ? 'selected' : '' }}>[ĐÃ HOÀN TRẢ]</option>
+            <label for="status" class="form-label small fw-semibold text-secondary text-uppercase mb-1">Trạng thái duyệt:</label>
+            <select name="status" id="status" class="form-select form-select-sm py-2">
+                <option value="">Tất cả trạng thái</option>
+                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Chờ duyệt</option>
+                <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Đã duyệt</option>
+                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Từ chối</option>
+                <option value="returned" {{ request('status') === 'returned' ? 'selected' : '' }}>Đã trả</option>
             </select>
         </div>
         <div class="col-md-3">
-            <label for="type" class="form-label small fw-bold text-secondary text-uppercase mb-1">Phân loại tin:</label>
-            <select name="type" id="type" class="form-select form-select-sm">
-                <option value="">-- Tất cả phân loại --</option>
-                <option value="lost" {{ request('type') === 'lost' ? 'selected' : '' }}>[ĐỒ BỊ MẤT]</option>
-                <option value="found" {{ request('type') === 'found' ? 'selected' : '' }}>[ĐỒ NHẶT ĐƯỢC]</option>
+            <label for="type" class="form-label small fw-semibold text-secondary text-uppercase mb-1">Phân loại tin:</label>
+            <select name="type" id="type" class="form-select form-select-sm py-2">
+                <option value="">Tất cả phân loại</option>
+                <option value="lost" {{ request('type') === 'lost' ? 'selected' : '' }}>Đồ bị mất</option>
+                <option value="found" {{ request('type') === 'found' ? 'selected' : '' }}>Đồ nhặt được</option>
             </select>
         </div>
         <div class="col-md-2 d-flex align-items-end gap-1">
-            <button type="submit" class="btn btn-primary btn-sm fw-bold w-100">[LỌC]</button>
-            <a href="{{ route('admin.items.index') }}" class="btn btn-outline-secondary btn-sm">[XÓA]</a>
+            <button type="submit" class="btn btn-primary btn-sm fw-semibold w-100 py-2">Lọc</button>
+            <a href="{{ route('admin.items.index') }}" class="btn btn-outline-secondary btn-sm py-2 px-3">Đặt lại</a>
         </div>
     </form>
 
     <!-- Bảng danh sách bài đăng -->
     @if($items->isEmpty())
         <div class="text-center py-5">
-            <h2 class="h5 text-secondary fw-bold">Không tìm thấy bài đăng nào theo tiêu chí lọc</h2>
+            <h2 class="h5 text-secondary fw-semibold">Không tìm thấy bài đăng nào theo tiêu chí lọc</h2>
         </div>
     @else
         <div class="table-responsive">
-            <table class="table table-hover align-middle small">
+            <table class="table table-hover align-middle small mb-0">
                 <thead class="table-light">
                     <tr>
                         <th class="py-2">Mã</th>
@@ -71,8 +71,8 @@
                         <tr>
                             <td>#{{ $item->id }}</td>
                             <td>
-                                <a href="{{ route('items.show', $item) }}" target="_blank" class="fw-bold text-dark text-decoration-none">
-                                    {{ Str::limit($item->title, 45) }}
+                                <a href="{{ route('items.show', $item) }}" target="_blank" class="fw-semibold text-dark text-decoration-none">
+                                    {{ Str::limit($item->title, 40) }}
                                 </a>
                                 <div class="text-muted" style="font-size: 0.75rem;">
                                     Ngày: {{ \Carbon\Carbon::parse($item->event_date)->format('d/m/Y') }}
@@ -80,36 +80,36 @@
                             </td>
                             <td>
                                 @if($item->type === 'lost')
-                                    <span class="badge bg-danger">[MẤT]</span>
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Mất</span>
                                 @else
-                                    <span class="badge bg-success">[NHẶT ĐƯỢC]</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Nhặt được</span>
                                 @endif
                             </td>
                             <td>
-                                <span class="fw-semibold">{{ $item->user->name }}</span>
+                                <span class="fw-medium text-dark">{{ $item->user->name }}</span>
                                 <div class="text-muted" style="font-size: 0.75rem;">{{ $item->user->email }}</div>
                             </td>
                             <td>{{ $item->category->name }}</td>
                             <td>{{ $item->location->name }}</td>
                             <td>
                                 @if($item->status === 'pending')
-                                    <span class="badge bg-warning text-dark">[CHỜ DUYỆT]</span>
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">Chờ duyệt</span>
                                 @elseif($item->status === 'approved')
-                                    <span class="badge bg-primary">[ĐÃ DUYỆT]</span>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Đã duyệt</span>
                                 @elseif($item->status === 'rejected')
-                                    <span class="badge bg-secondary">[TỪ CHỐI]</span>
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">Từ chối</span>
                                 @elseif($item->status === 'returned')
-                                    <span class="badge bg-success">[ĐÃ TRẢ]</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Đã trả</span>
                                 @endif
                             </td>
                             <td class="text-end">
-                                <div class="d-inline-flex flex-wrap gap-1 justify-content-end">
+                                <div class="d-inline-flex gap-1 flex-nowrap justify-content-end">
                                     @if($item->status !== 'approved')
                                         <form action="{{ route('admin.items.status', $item) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="approved">
-                                            <button type="submit" class="btn btn-sm btn-outline-success py-0 px-2 fw-bold" title="Duyệt bài đăng này">[DUYỆT]</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-success py-1 px-2 fw-medium text-nowrap" title="Duyệt bài đăng này">Duyệt bài</button>
                                         </form>
                                     @endif
 
@@ -118,14 +118,14 @@
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="rejected">
-                                            <button type="submit" class="btn btn-sm btn-outline-warning py-0 px-2 fw-semibold" title="Từ chối duyệt">[TỪ CHỐI]</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-warning py-1 px-2 fw-medium text-nowrap text-dark" title="Từ chối duyệt">Từ chối</button>
                                         </form>
                                     @endif
 
                                     <form action="{{ route('admin.items.destroy', $item) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài đăng này khỏi hệ thống?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2 fw-semibold">[XÓA]</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2 fw-medium text-nowrap">Xóa</button>
                                     </form>
                                 </div>
                             </td>
@@ -135,8 +135,8 @@
             </table>
         </div>
 
-        <div class="mt-3 d-flex justify-content-center">
-            {{ $items->links('pagination::bootstrap-5') }}
+        <div class="mt-4 pt-3 border-top">
+            {{ $items->links('vendor.pagination.bootstrap-5') }}
         </div>
     @endif
 </div>

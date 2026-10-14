@@ -139,7 +139,7 @@ class AdminController extends Controller
             });
         }
 
-        $users = $query->latest()->paginate(10)->withQueryString();
+        $users = $query->orderBy('id', 'asc')->paginate(10)->withQueryString();
 
         return view('admin.users.index', compact('users'));
     }
