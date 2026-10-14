@@ -107,9 +107,13 @@
                                 @endif
                             </td>
                             <td class="text-end">
-                                <a href="{{ route('admin.claims.index') }}" class="btn btn-primary btn-sm py-1 px-3 fw-medium">
-                                    Xử lý
-                                </a>
+                                @if($claim->status === 'pending')
+                                    <a href="{{ route('admin.claims.index') }}" class="btn btn-primary btn-sm py-1 px-3 fw-medium">
+                                        Xử lý
+                                    </a>
+                                @else
+                                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">Đã hoàn tất</span>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -117,37 +121,5 @@
             </table>
         </div>
     @endif
-</section>
-
-<!-- Các phím tắt quản lý nhanh -->
-<section class="row g-3" aria-label="Phím tắt quản lý">
-    <div class="col-md-3">
-        <div class="card card-admin p-3 text-center rounded-3">
-            <h3 class="h6 fw-bold mb-2">Quản lý bài đăng</h3>
-            <p class="small text-muted mb-3">Kiểm duyệt, phê duyệt hoặc gỡ bài đăng sai quy định.</p>
-            <a href="{{ route('admin.items.index') }}" class="btn btn-outline-primary btn-sm fw-medium">Truy cập</a>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card card-admin p-3 text-center rounded-3">
-            <h3 class="h6 fw-bold mb-2">Quản lý danh mục</h3>
-            <p class="small text-muted mb-3">Thêm mới, sửa đổi hoặc kiểm tra các danh mục đồ dùng.</p>
-            <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-primary btn-sm fw-medium">Truy cập</a>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card card-admin p-3 text-center rounded-3">
-            <h3 class="h6 fw-bold mb-2">Quản lý địa điểm</h3>
-            <p class="small text-muted mb-3">Quản trị các khu vực khuôn viên trường (Thư viện, Căn tin...).</p>
-            <a href="{{ route('admin.locations.index') }}" class="btn btn-outline-primary btn-sm fw-medium">Truy cập</a>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card card-admin p-3 text-center rounded-3">
-            <h3 class="h6 fw-bold mb-2">Quản lý người dùng</h3>
-            <p class="small text-muted mb-3">Phân quyền tài khoản, khóa hoặc xóa thành viên vi phạm.</p>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary btn-sm fw-medium">Truy cập</a>
-        </div>
-    </div>
 </section>
 @endsection

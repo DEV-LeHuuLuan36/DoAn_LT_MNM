@@ -8,7 +8,7 @@
     <div class="col-lg-8">
         <div class="card card-custom border-0 shadow-sm rounded-3">
             <div class="card-header bg-white border-bottom py-3">
-                <span class="badge bg-warning-subtle text-dark border border-warning-subtle text-uppercase mb-1 px-3 py-1 rounded-pill" style="font-size: 0.75rem;">Cổng thông tin sinh viên</span>
+                <span class="badge bg-warning-subtle text-dark border border-warning-subtle text-uppercase mb-1 px-3 py-1 rounded-pill" style="font-size: 0.75rem;">Hệ thống tìm đồ thất lạc – HUIT</span>
                 <h1 class="h4 mb-0 fw-bold" style="color: #003366;">Đăng tin tìm đồ hoặc báo nhặt được đồ</h1>
             </div>
 

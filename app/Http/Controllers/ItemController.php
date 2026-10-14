@@ -12,7 +12,7 @@ class ItemController extends Controller
 {
     public function index(Request $request)
     {
-        $categories = Category::all();
+        $categories = Category::orderByRaw("CASE WHEN slug = 'muc-khac' THEN 1 ELSE 0 END, id ASC")->get();
         $locations = Location::all();
 
         $query = Item::with(['category', 'location', 'user'])
@@ -43,8 +43,10 @@ class ItemController extends Controller
         }
 
         $items = $query->latest()->paginate(9)->withQueryString();
+        $lostCount = Item::where('status', 'approved')->where('type', 'lost')->count();
+        $foundCount = Item::where('status', 'approved')->where('type', 'found')->count();
 
-        return view('items.index', compact('items', 'categories', 'locations'));
+        return view('items.index', compact('items', 'categories', 'locations', 'lostCount', 'foundCount'));
     }
 
     public function show(Item $item)
@@ -84,7 +86,7 @@ class ItemController extends Controller
 
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::orderByRaw("CASE WHEN slug = 'muc-khac' THEN 1 ELSE 0 END, id ASC")->get();
         $locations = Location::all();
 
         return view('items.create', compact('categories', 'locations'));
@@ -148,7 +150,7 @@ class ItemController extends Controller
         // TC08: Kiểm tra quyền sở hữu
         abort_if($item->user_id !== Auth::id(), 403, 'Bạn không có quyền chỉnh sửa bài đăng này.');
 
-        $categories = Category::all();
+        $categories = Category::orderByRaw("CASE WHEN slug = 'muc-khac' THEN 1 ELSE 0 END, id ASC")->get();
         $locations = Location::all();
 
         return view('items.edit', compact('item', 'categories', 'locations'));

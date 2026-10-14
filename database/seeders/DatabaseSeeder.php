@@ -283,7 +283,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'user_id' => $user1->id,
-                'category_id' => $cats['binh-nuoc-do-dung-ca-nhan']->id,
+                'category_id' => $cats['muc-khac']->id,
                 'location_id' => $locs['Phòng Công tác sinh viên (CTSV)']->id,
                 'type' => 'lost',
                 'title' => 'Để quên áo khoác dù màu đen có logo HUIT trước phòng CTSV',
@@ -417,7 +417,29 @@ class DatabaseSeeder extends Seeder
     }
 
     /**
-     * Tự động sinh ảnh minh họa 800x500 bằng PHP GD
+     * Vẽ hình chữ nhật bo góc bằng PHP GD
+     */
+    private function drawRoundedRect($im, int $x1, int $y1, int $x2, int $y2, int $radius, int $color): void
+    {
+        if ($radius <= 0) {
+            imagefilledrectangle($im, $x1, $y1, $x2, $y2, $color);
+            return;
+        }
+        $radius = min($radius, (int)(abs($x2 - $x1) / 2), (int)(abs($y2 - $y1) / 2));
+        imagefilledrectangle($im, $x1 + $radius, $y1, $x2 - $radius, $y2, $color);
+        imagefilledrectangle($im, $x1, $y1 + $radius, $x1 + $radius, $y2 - $radius, $color);
+        imagefilledrectangle($im, $x2 - $radius, $y1 + $radius, $x2, $y2 - $radius, $color);
+
+        $d = $radius * 2;
+        imagefilledarc($im, $x1 + $radius, $y1 + $radius, $d, $d, 180, 270, $color, IMG_ARC_PIE);
+        imagefilledarc($im, $x2 - $radius, $y1 + $radius, $d, $d, 270, 360, $color, IMG_ARC_PIE);
+        imagefilledarc($im, $x2 - $radius, $y2 - $radius, $d, $d, 0, 90, $color, IMG_ARC_PIE);
+        imagefilledarc($im, $x1 + $radius, $y2 - $radius, $d, $d, 90, 180, $color, IMG_ARC_PIE);
+    }
+
+    /**
+     * Tự động sinh ảnh minh họa Flat Vector Illustration 800x500 bằng PHP GD
+     * Tuyệt đối không vẽ badge "Đồ bị mất", không vẽ tên trường/địa điểm/danh mục chồng lên ảnh
      */
     private function generateIllustrationImage(string $filename, string $title, string $categoryName, string $locationName, string $type): void
     {
@@ -427,29 +449,29 @@ class DatabaseSeeder extends Seeder
         $height = 500;
         $im = imagecreatetruecolor($width, $height);
 
-        // Bảng màu gradient sắc nét theo danh mục
+        // Bảng màu pastel chuyển sắc dịu nhẹ theo từng nhóm đồ vật
         $palettes = [
-            'dien-thoai' => ['r1' => 15, 'g1' => 43, 'b1' => 72, 'r2' => 30, 'g2' => 75, 'b2' => 115],
-            'vi-bop' => ['r1' => 62, 'g1' => 39, 'b1' => 35, 'r2' => 109, 'g2' => 76, 'b2' => 65],
-            'giay-to-the-sinh-vien' => ['r1' => 19, 'g1' => 78, 'b1' => 74, 'r2' => 20, 'g2' => 110, 'b2' => 100],
-            'tai-nghe-thiet-bi-dien-tu' => ['r1' => 49, 'g1' => 46, 'b1' => 129, 'r2' => 67, 'g2' => 56, 'b2' => 202],
-            'chia-khoa' => ['r1' => 136, 'g1' => 19, 'b1' => 55, 'r2' => 190, 'g2' => 24, 'b2' => 70],
-            'sach-vo-tai-lieu' => ['r1' => 30, 'g1' => 58, 'b1' => 138, 'r2' => 37, 'g2' => 99, 'b2' => 235],
-            'binh-nuoc-do-dung-ca-nhan' => ['r1' => 21, 'g1' => 94, 'b1' => 117, 'r2' => 14, 'g2' => 130, 'b2' => 160],
+            'dien-thoai' => ['r1' => 241, 'g1' => 245, 'b1' => 249, 'r2' => 226, 'g2' => 232, 'b2' => 240], // Slate pastel
+            'giay-to-the-sinh-vien' => ['r1' => 240, 'g1' => 253, 'b1' => 250, 'r2' => 204, 'g2' => 251, 'b2' => 241], // Teal pastel
+            'vi-bop' => ['r1' => 255, 'g1' => 251, 'b1' => 235, 'r2' => 254, 'g2' => 243, 'b2' => 199], // Amber pastel
+            'tai-nghe-thiet-bi-dien-tu' => ['r1' => 250, 'g1' => 245, 'b1' => 255, 'r2' => 237, 'g2' => 233, 'b2' => 254], // Purple pastel
+            'chia-khoa' => ['r1' => 255, 'g1' => 241, 'b1' => 242, 'r2' => 254, 'g2' => 226, 'b2' => 226], // Rose pastel
+            'sach-vo-tai-lieu' => ['r1' => 240, 'g1' => 249, 'b1' => 255, 'r2' => 224, 'g2' => 242, 'b2' => 254], // Sky pastel
+            'binh-nuoc-do-dung-ca-nhan' => ['r1' => 240, 'g1' => 253, 'b1' => 244, 'r2' => 220, 'g2' => 252, 'b2' => 231], // Mint pastel
         ];
 
         $lowerCat = mb_strtolower($categoryName);
         $slug = 'dien-thoai';
-        if (str_contains($lowerCat, 'ví')) $slug = 'vi-bop';
-        elseif (str_contains($lowerCat, 'giấy') || str_contains($lowerCat, 'thẻ')) $slug = 'giay-to-the-sinh-vien';
-        elseif (str_contains($lowerCat, 'tai nghe') || str_contains($lowerCat, 'điện tử')) $slug = 'tai-nghe-thiet-bi-dien-tu';
+        if (str_contains($lowerCat, 'ví') || str_contains($lowerCat, 'bóp')) $slug = 'vi-bop';
+        elseif (str_contains($lowerCat, 'giấy') || str_contains($lowerCat, 'thẻ') || str_contains($lowerCat, 'sinh viên')) $slug = 'giay-to-the-sinh-vien';
+        elseif (str_contains($lowerCat, 'tai nghe') || str_contains($lowerCat, 'điện tử') || str_contains($lowerCat, 'sạc') || str_contains($lowerCat, 'pin')) $slug = 'tai-nghe-thiet-bi-dien-tu';
         elseif (str_contains($lowerCat, 'chìa')) $slug = 'chia-khoa';
-        elseif (str_contains($lowerCat, 'sách') || str_contains($lowerCat, 'tài liệu')) $slug = 'sach-vo-tai-lieu';
-        elseif (str_contains($lowerCat, 'bình') || str_contains($lowerCat, 'cá nhân')) $slug = 'binh-nuoc-do-dung-ca-nhan';
+        elseif (str_contains($lowerCat, 'sách') || str_contains($lowerCat, 'vở') || str_contains($lowerCat, 'tài liệu') || str_contains($lowerCat, 'giáo trình')) $slug = 'sach-vo-tai-lieu';
+        elseif (str_contains($lowerCat, 'bình') || str_contains($lowerCat, 'cá nhân') || str_contains($lowerCat, 'nước') || str_contains($lowerCat, 'áo') || str_contains($lowerCat, 'khác')) $slug = 'binh-nuoc-do-dung-ca-nhan';
 
         $p = $palettes[$slug] ?? $palettes['dien-thoai'];
 
-        // 1. Tô nền gradient dọc mượt mà
+        // 1. Tô nền gradient dọc dịu nhẹ
         for ($y = 0; $y < $height; $y++) {
             $factor = $y / $height;
             $r = (int)($p['r1'] + ($p['r2'] - $p['r1']) * $factor);
@@ -459,53 +481,205 @@ class DatabaseSeeder extends Seeder
             imageline($im, 0, $y, $width, $y, $lineColor);
         }
 
+        // Bảng màu đồ họa
         $white = imagecolorallocate($im, 255, 255, 255);
-        $lightGray = imagecolorallocate($im, 226, 232, 240);
-        $gold = imagecolorallocate($im, 255, 204, 0);
-        $borderColor = imagecolorallocatealpha($im, 255, 255, 255, 95);
-        $innerCardBg = imagecolorallocatealpha($im, 0, 0, 0, 105);
+        $darkText = imagecolorallocate($im, 30, 41, 59);
+        $subText = imagecolorallocate($im, 100, 116, 139);
+        $shadowColor = imagecolorallocatealpha($im, 0, 0, 0, 115);
 
-        // 2. Vẽ viền khung trang trí tinh tế
-        imagerectangle($im, 28, 28, $width - 29, $height - 29, $borderColor);
-        imagerectangle($im, 30, 30, $width - 31, $height - 31, $borderColor);
+        // Đổ bóng mềm dưới chân đồ vật
+        imagefilledellipse($im, 400, 345, 240, 32, $shadowColor);
 
-        // 3. Khung nội dung chính mờ
-        imagefilledrectangle($im, 55, 120, $width - 55, 420, $innerCardBg);
-        imagerectangle($im, 55, 120, $width - 55, 420, $borderColor);
+        // 2. Vẽ hình minh họa Flat Vector Illustration trung tâm theo danh mục
+        switch ($slug) {
+            case 'dien-thoai':
+                // Thân máy Smartphone
+                $phoneBody = imagecolorallocate($im, 30, 41, 59);
+                $this->drawRoundedRect($im, 335, 75, 465, 335, 26, $phoneBody);
 
-        $fontBold = 'C:/Windows/Fonts/arialbd.ttf';
-        $fontRegular = 'C:/Windows/Fonts/arial.ttf';
-        $hasTtf = file_exists($fontBold) && function_exists('imagettftext');
+                // Màn hình hiển thị
+                $phoneScreen = imagecolorallocate($im, 37, 99, 235);
+                $this->drawRoundedRect($im, 345, 90, 455, 320, 18, $phoneScreen);
 
-        // 4. Nhãn phân loại
-        if ($type === 'lost') {
-            $badgeBg = imagecolorallocate($im, 220, 53, 69);
-            $badgeText = "ĐỒ BỊ MẤT";
-        } else {
-            $badgeBg = imagecolorallocate($im, 25, 135, 84);
-            $badgeText = "ĐỒ NHẶT ĐƯỢC";
+                // Điểm nhấn giao diện màn hình
+                $screenGlow = imagecolorallocate($im, 96, 165, 250);
+                $this->drawRoundedRect($im, 345, 180, 455, 320, 18, $screenGlow);
+
+                // Cụm Dynamic Island / Loa thoại
+                $notch = imagecolorallocate($im, 15, 23, 42);
+                $this->drawRoundedRect($im, 385, 98, 415, 112, 7, $notch);
+
+                // Thanh điều hướng Home Bar
+                $homeBar = imagecolorallocatealpha($im, 255, 255, 255, 30);
+                $this->drawRoundedRect($im, 380, 310, 420, 314, 2, $homeBar);
+                break;
+
+            case 'giay-to-the-sinh-vien':
+                // Thẻ sinh viên viền xám sáng
+                $cardBorder = imagecolorallocate($im, 203, 213, 225);
+                $this->drawRoundedRect($im, 278, 98, 522, 312, 18, $cardBorder);
+                $this->drawRoundedRect($im, 280, 100, 520, 310, 16, $white);
+
+                // Băng tiêu đề xanh HUIT ở phía trên
+                $huitNavy = imagecolorallocate($im, 0, 51, 102);
+                $this->drawRoundedRect($im, 280, 100, 520, 148, 16, $huitNavy);
+                imagefilledrectangle($im, 280, 125, 520, 148, $huitNavy);
+
+                // Vạch tượng trưng tên trường trên thẻ
+                $headerGold = imagecolorallocate($im, 255, 204, 0);
+                $this->drawRoundedRect($im, 300, 118, 440, 128, 4, $white);
+                $this->drawRoundedRect($im, 450, 118, 500, 128, 4, $headerGold);
+
+                // Khung ảnh chân dung 3x4
+                $photoBg = imagecolorallocate($im, 226, 232, 240);
+                $this->drawRoundedRect($im, 305, 165, 375, 260, 8, $photoBg);
+                $avatarColor = imagecolorallocate($im, 148, 163, 184);
+                imagefilledellipse($im, 340, 195, 32, 32, $avatarColor);
+                $this->drawRoundedRect($im, 320, 220, 360, 260, 10, $avatarColor);
+
+                // Các vạch thông tin sinh viên (Họ tên, MSSV, Khoa, Lớp)
+                $lineColor1 = imagecolorallocate($im, 51, 65, 85);
+                $lineColor2 = imagecolorallocate($im, 100, 116, 139);
+                $lineColor3 = imagecolorallocate($im, 148, 163, 184);
+                $lineColor4 = imagecolorallocate($im, 203, 213, 225);
+                $this->drawRoundedRect($im, 395, 172, 495, 182, 4, $lineColor1);
+                $this->drawRoundedRect($im, 395, 198, 475, 206, 3, $lineColor2);
+                $this->drawRoundedRect($im, 395, 220, 500, 228, 3, $lineColor3);
+                $this->drawRoundedRect($im, 395, 242, 460, 250, 3, $lineColor4);
+
+                // Con chip thông minh vàng
+                $chipGold = imagecolorallocate($im, 234, 179, 8);
+                $this->drawRoundedRect($im, 395, 270, 440, 295, 5, $chipGold);
+                break;
+
+            case 'vi-bop':
+                // Thân ví da gấp
+                $walletBrown = imagecolorallocate($im, 120, 53, 15);
+                $walletDark = imagecolorallocate($im, 69, 26, 3);
+                $walletLight = imagecolorallocate($im, 180, 83, 9);
+                $this->drawRoundedRect($im, 280, 110, 520, 310, 22, $walletBrown);
+
+                // Các lớp ngăn đựng thẻ bên trong ví
+                $this->drawRoundedRect($im, 295, 125, 505, 200, 14, $walletLight);
+                $this->drawRoundedRect($im, 295, 155, 505, 295, 14, $walletDark);
+
+                // Quai gài và nút khóa kim loại màu vàng
+                $this->drawRoundedRect($im, 460, 185, 535, 240, 14, $walletDark);
+                $claspGold = imagecolorallocate($im, 250, 204, 21);
+                imagefilledellipse($im, 505, 212, 22, 22, $claspGold);
+                $claspInner = imagecolorallocate($im, 202, 138, 4);
+                imagefilledellipse($im, 505, 212, 12, 12, $claspInner);
+                break;
+
+            case 'tai-nghe-thiet-bi-dien-tu':
+                // Hộp sạc tai nghe bo tròn
+                $caseShadow = imagecolorallocate($im, 203, 213, 225);
+                $this->drawRoundedRect($im, 328, 98, 472, 312, 38, $caseShadow);
+                $this->drawRoundedRect($im, 330, 100, 470, 310, 36, $white);
+
+                // Đường rãnh mở nắp
+                $groove = imagecolorallocate($im, 226, 232, 240);
+                imagefilledrectangle($im, 330, 168, 470, 172, $groove);
+
+                // Rãnh ngón tay mở hộp
+                $this->drawRoundedRect($im, 385, 165, 415, 175, 4, $caseShadow);
+
+                // Đèn LED báo nguồn màu xanh lá
+                $greenLed = imagecolorallocate($im, 34, 197, 94);
+                imagefilledellipse($im, 400, 205, 10, 10, $greenLed);
+                break;
+
+            case 'chia-khoa':
+                // Vòng xâu chìa khóa kim loại
+                $silver = imagecolorallocate($im, 148, 163, 184);
+                imagefilledellipse($im, 360, 150, 96, 96, $silver);
+                $innerRingColor = imagecolorallocate($im, (int)$p['r1'], (int)$p['g1'], (int)$p['b1']);
+                imagefilledellipse($im, 360, 150, 72, 72, $innerRingColor);
+
+                // Remote Smartkey xe máy màu đen
+                $fobBody = imagecolorallocate($im, 30, 41, 59);
+                $this->drawRoundedRect($im, 405, 150, 475, 290, 20, $fobBody);
+                $buttonSilver = imagecolorallocate($im, 203, 213, 225);
+                $this->drawRoundedRect($im, 425, 180, 455, 205, 6, $buttonSilver);
+                $this->drawRoundedRect($im, 425, 220, 455, 245, 6, $buttonSilver);
+
+                // Chìa khóa đồng truyền thống
+                $goldKey = imagecolorallocate($im, 234, 179, 8);
+                $goldDark = imagecolorallocate($im, 161, 98, 7);
+                imagefilledellipse($im, 360, 195, 52, 52, $goldKey);
+                imagefilledellipse($im, 360, 195, 20, 20, $innerRingColor);
+                imagefilledrectangle($im, 353, 215, 367, 320, $goldKey);
+                imagefilledrectangle($im, 367, 260, 377, 272, $goldKey);
+                imagefilledrectangle($im, 367, 285, 379, 297, $goldKey);
+                imagefilledrectangle($im, 367, 308, 375, 318, $goldDark);
+                break;
+
+            case 'sach-vo-tai-lieu':
+                // Các lớp giấy của cuốn sách
+                $pagesBg = imagecolorallocate($im, 241, 245, 249);
+                $pagesLine = imagecolorallocate($im, 203, 213, 225);
+                $this->drawRoundedRect($im, 310, 95, 495, 315, 16, $pagesLine);
+                imagefilledrectangle($im, 470, 105, 495, 310, $pagesBg);
+                imagefilledrectangle($im, 325, 300, 490, 312, $pagesBg);
+
+                // Bìa sách màu xanh dương đậm
+                $coverBlue = imagecolorallocate($im, 29, 78, 216);
+                $spineDark = imagecolorallocate($im, 30, 58, 138);
+                $this->drawRoundedRect($im, 305, 90, 480, 305, 14, $coverBlue);
+                $this->drawRoundedRect($im, 305, 90, 335, 305, 14, $spineDark);
+                imagefilledrectangle($im, 320, 90, 335, 305, $spineDark);
+
+                // Ô nhãn trắng ghi tên sách
+                $this->drawRoundedRect($im, 355, 140, 460, 190, 8, $white);
+                $titleBar = imagecolorallocate($im, 30, 41, 59);
+                $this->drawRoundedRect($im, 370, 155, 445, 163, 3, $titleBar);
+                $this->drawRoundedRect($im, 370, 170, 430, 176, 2, $subText);
+
+                // Dải ruy băng đánh dấu trang màu đỏ
+                $ribbonRed = imagecolorallocate($im, 239, 68, 68);
+                imagefilledrectangle($im, 395, 295, 410, 335, $ribbonRed);
+                break;
+
+            case 'binh-nuoc-do-dung-ca-nhan':
+            default:
+                // Thân bình nước giữ nhiệt / đồ cá nhân
+                $bottleBlue = imagecolorallocate($im, 14, 165, 233);
+                $bottleGrip = imagecolorallocate($im, 2, 132, 199);
+                $capDark = imagecolorallocate($im, 51, 65, 85);
+                $capSilver = imagecolorallocate($im, 203, 213, 225);
+
+                // Quai xách nắp bình
+                $this->drawRoundedRect($im, 385, 70, 415, 105, 8, $capDark);
+
+                // Nắp bình giữ nhiệt
+                $this->drawRoundedRect($im, 365, 95, 435, 135, 10, $capDark);
+                imagefilledrectangle($im, 360, 130, 440, 140, $capSilver);
+
+                // Thân bình dáng trụ
+                $this->drawRoundedRect($im, 350, 138, 450, 325, 22, $bottleBlue);
+
+                // Đai bọc silicon chống trượt
+                $this->drawRoundedRect($im, 350, 205, 450, 260, 6, $bottleGrip);
+                $whiteAlpha = imagecolorallocatealpha($im, 255, 255, 255, 90);
+                $this->drawRoundedRect($im, 365, 220, 435, 224, 2, $whiteAlpha);
+                $this->drawRoundedRect($im, 365, 235, 435, 239, 2, $whiteAlpha);
+                break;
         }
-        imagefilledrectangle($im, 60, 55, 220, 95, $badgeBg);
 
-        if ($hasTtf) {
-            imagettftext($im, 13, 0, 75, 81, $white, $fontBold, $badgeText);
-            imagettftext($im, 13, 0, 420, 80, $gold, $fontBold, 'CAMPUS LOST & FOUND - HUIT');
-
-            // Tên đồ vật
-            imagettftext($im, 23, 0, 85, 200, $white, $fontBold, $title);
-
-            // Danh mục & Địa điểm
-            imagettftext($im, 15, 0, 85, 270, $gold, $fontBold, 'Danh mục: ' . $categoryName);
-            imagettftext($im, 15, 0, 85, 315, $lightGray, $fontRegular, 'Địa điểm: ' . $locationName);
-
-            // Dòng nhận diện trường
-            imagettftext($im, 12, 0, 85, 385, $lightGray, $fontRegular, 'Trường Đại học Công Thương TP. Hồ Chí Minh (HUIT)');
+        // 3. Tên món đồ duy nhất nhỏ gọn, tinh tế ở dưới hình vẽ
+        $fontBold = 'C:/Windows/Fonts/arialbd.ttf';
+        if (file_exists($fontBold) && function_exists('imagettftext')) {
+            $fontSize = 18;
+            if (mb_strlen($title) > 35) {
+                $fontSize = 15;
+            }
+            $bbox = imagettfbbox($fontSize, 0, $fontBold, $title);
+            $textWidth = abs($bbox[2] - $bbox[0]);
+            $x = (int)(($width - $textWidth) / 2);
+            imagettftext($im, $fontSize, 0, $x, 410, $darkText, $fontBold, $title);
         } else {
-            imagestring($im, 4, 75, 68, $badgeText, $white);
-            imagestring($im, 4, 450, 70, 'CAMPUS LOST & FOUND - HUIT', $gold);
-            imagestring($im, 5, 85, 190, $title, $white);
-            imagestring($im, 4, 85, 260, 'Danh muc: ' . $categoryName, $gold);
-            imagestring($im, 4, 85, 300, 'Dia diem: ' . $locationName, $lightGray);
+            $x = (int)(($width - strlen($title) * 9) / 2);
+            imagestring($im, 5, max(20, $x), 400, $title, $darkText);
         }
 
         imagepng($im, $targetFile);

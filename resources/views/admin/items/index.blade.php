@@ -17,14 +17,14 @@
     </div>
 
     <!-- Bộ lọc bài đăng -->
-    <form action="{{ route('admin.items.index') }}" method="GET" class="row g-2 mb-4 bg-light p-3 rounded-3 border">
-        <div class="col-md-4">
+    <form action="{{ route('admin.items.index') }}" method="GET" class="row g-2 mb-4 bg-light p-3 rounded-3 border align-items-end">
+        <div class="col-md-3">
             <label for="keyword" class="form-label small fw-semibold text-secondary text-uppercase mb-1">Tìm theo tiêu đề hoặc mô tả:</label>
-            <input type="text" name="keyword" id="keyword" class="form-control form-control-sm py-2" value="{{ request('keyword') }}" placeholder="Nhập từ khóa...">
+            <input type="text" name="keyword" id="keyword" class="form-control py-2" value="{{ request('keyword') }}" placeholder="Nhập từ khóa...">
         </div>
         <div class="col-md-3">
             <label for="status" class="form-label small fw-semibold text-secondary text-uppercase mb-1">Trạng thái duyệt:</label>
-            <select name="status" id="status" class="form-select form-select-sm py-2">
+            <select name="status" id="status" class="form-select py-2">
                 <option value="">Tất cả trạng thái</option>
                 <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Chờ duyệt</option>
                 <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Đã duyệt</option>
@@ -34,15 +34,15 @@
         </div>
         <div class="col-md-3">
             <label for="type" class="form-label small fw-semibold text-secondary text-uppercase mb-1">Phân loại tin:</label>
-            <select name="type" id="type" class="form-select form-select-sm py-2">
+            <select name="type" id="type" class="form-select py-2">
                 <option value="">Tất cả phân loại</option>
                 <option value="lost" {{ request('type') === 'lost' ? 'selected' : '' }}>Đồ bị mất</option>
                 <option value="found" {{ request('type') === 'found' ? 'selected' : '' }}>Đồ nhặt được</option>
             </select>
         </div>
-        <div class="col-md-2 d-flex align-items-end gap-1">
-            <button type="submit" class="btn btn-primary btn-sm fw-semibold w-100 py-2">Lọc</button>
-            <a href="{{ route('admin.items.index') }}" class="btn btn-outline-secondary btn-sm py-2 px-3">Đặt lại</a>
+        <div class="col-md-3 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary text-nowrap px-3 py-2 flex-grow-1">Lọc</button>
+            <a href="{{ route('admin.items.index') }}" class="btn btn-outline-secondary text-nowrap px-3 py-2">Đặt lại</a>
         </div>
     </form>
 
@@ -56,42 +56,40 @@
             <table class="table table-hover align-middle small mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="py-2">Mã</th>
-                        <th class="py-2">Tiêu đề bài đăng</th>
-                        <th class="py-2">Loại tin</th>
-                        <th class="py-2">Người đăng</th>
-                        <th class="py-2">Danh mục</th>
-                        <th class="py-2">Địa điểm</th>
-                        <th class="py-2">Trạng thái</th>
-                        <th class="py-2 text-end">Hành động kiểm duyệt</th>
+                        <th class="py-2 text-nowrap" style="width: 55px;">Mã</th>
+                        <th class="py-2 text-nowrap">Thông tin bài đăng</th>
+                        <th class="py-2 text-nowrap">Phân loại &amp; Địa điểm</th>
+                        <th class="py-2 text-nowrap">Người đăng</th>
+                        <th class="py-2 text-nowrap">Trạng thái</th>
+                        <th class="py-2 text-end text-nowrap" style="width: 190px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($items as $item)
                         <tr>
-                            <td>#{{ $item->id }}</td>
+                            <td class="text-nowrap text-secondary">#{{ $item->id }}</td>
                             <td>
-                                <a href="{{ route('items.show', $item) }}" target="_blank" class="fw-semibold text-dark text-decoration-none">
-                                    {{ Str::limit($item->title, 40) }}
-                                </a>
-                                <div class="text-muted" style="font-size: 0.75rem;">
-                                    Ngày: {{ \Carbon\Carbon::parse($item->event_date)->format('d/m/Y') }}
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    @if($item->type === 'lost')
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 text-nowrap">Mất</span>
+                                    @else
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 text-nowrap">Nhặt được</span>
+                                    @endif
+                                    <a href="{{ route('items.show', $item) }}" target="_blank" class="fw-bold text-dark text-decoration-none">
+                                        {{ Str::limit($item->title, 55) }}
+                                    </a>
                                 </div>
+                                <div class="small text-muted">Ngày sự việc: {{ \Carbon\Carbon::parse($item->event_date)->format('d/m/Y') }}</div>
                             </td>
                             <td>
-                                @if($item->type === 'lost')
-                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Mất</span>
-                                @else
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Nhặt được</span>
-                                @endif
+                                <div class="fw-semibold text-dark">{{ $item->category->name }}</div>
+                                <div class="small text-muted">Khu vực: {{ $item->location->name }}</div>
                             </td>
                             <td>
-                                <span class="fw-medium text-dark">{{ $item->user->name }}</span>
-                                <div class="text-muted" style="font-size: 0.75rem;">{{ $item->user->email }}</div>
+                                <div class="fw-medium text-dark text-nowrap">{{ $item->user->name }}</div>
+                                <div class="small text-muted">{{ $item->user->email }}</div>
                             </td>
-                            <td>{{ $item->category->name }}</td>
-                            <td>{{ $item->location->name }}</td>
-                            <td>
+                            <td class="text-nowrap">
                                 @if($item->status === 'pending')
                                     <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">Chờ duyệt</span>
                                 @elseif($item->status === 'approved')
@@ -103,25 +101,49 @@
                                 @endif
                             </td>
                             <td class="text-end">
-                                <div class="d-inline-flex gap-1 flex-nowrap justify-content-end">
-                                    @if($item->status !== 'approved')
+                                <div class="d-inline-flex gap-1 flex-nowrap justify-content-end align-items-center">
+                                    {{-- 1. Nếu pending: Duyệt, Từ chối, Xóa --}}
+                                    @if($item->status === 'pending')
                                         <form action="{{ route('admin.items.status', $item) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="approved">
-                                            <button type="submit" class="btn btn-sm btn-outline-success py-1 px-2 fw-medium text-nowrap" title="Duyệt bài đăng này">Duyệt bài</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-success py-1 px-2 fw-medium text-nowrap" title="Duyệt bài đăng">Duyệt</button>
                                         </form>
-                                    @endif
 
-                                    @if($item->status !== 'rejected')
                                         <form action="{{ route('admin.items.status', $item) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="rejected">
-                                            <button type="submit" class="btn btn-sm btn-outline-warning py-1 px-2 fw-medium text-nowrap text-dark" title="Từ chối duyệt">Từ chối</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-warning py-1 px-2 fw-medium text-nowrap text-dark" title="Từ chối duyệt bài">Từ chối</button>
                                         </form>
+
+                                    {{-- 2. Nếu approved: Xem, Từ chối, Xóa --}}
+                                    @elseif($item->status === 'approved')
+                                        <a href="{{ route('items.show', $item) }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2 fw-medium text-nowrap">Xem</a>
+
+                                        <form action="{{ route('admin.items.status', $item) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="rejected">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning py-1 px-2 fw-medium text-nowrap text-dark" title="Gỡ bài đăng khỏi trang chủ">Từ chối</button>
+                                        </form>
+
+                                    {{-- 3. Nếu rejected: Duyệt lại, Xóa --}}
+                                    @elseif($item->status === 'rejected')
+                                        <form action="{{ route('admin.items.status', $item) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="approved">
+                                            <button type="submit" class="btn btn-sm btn-outline-success py-1 px-2 fw-medium text-nowrap" title="Duyệt lại bài đăng này">Duyệt lại</button>
+                                        </form>
+
+                                    {{-- 4. Nếu returned: Xem, Xóa --}}
+                                    @elseif($item->status === 'returned')
+                                        <a href="{{ route('items.show', $item) }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2 fw-medium text-nowrap">Xem</a>
                                     @endif
 
+                                    {{-- Nút Xóa bài đăng --}}
                                     <form action="{{ route('admin.items.destroy', $item) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài đăng này khỏi hệ thống?');">
                                         @csrf
                                         @method('DELETE')

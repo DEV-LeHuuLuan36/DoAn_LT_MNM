@@ -32,9 +32,14 @@
             <p class="text-secondary small mb-0">Hỗ trợ kết nối nhanh chóng giữa người đánh rơi và người nhặt được đồ trong toàn khuôn viên trường HUIT.</p>
         </div>
         <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-            <a href="{{ route('items.create') }}" class="btn btn-post-item fw-semibold shadow-sm px-3 py-2">
-                Đăng tin tìm hoặc trả đồ
-            </a>
+            <div class="d-inline-flex flex-wrap gap-2 justify-content-lg-end">
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill">
+                    Đồ bị mất: <strong>{{ $lostCount ?? 0 }}</strong>
+                </span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                    Đồ nhặt được: <strong>{{ $foundCount ?? 0 }}</strong>
+                </span>
+            </div>
         </div>
     </div>
 

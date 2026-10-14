@@ -25,22 +25,23 @@
             <table class="table table-hover align-middle small mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="py-2">Mã</th>
-                        <th class="py-2">Tên danh mục</th>
-                        <th class="py-2">Chuỗi định danh (Slug)</th>
-                        <th class="py-2">Mô tả</th>
-                        <th class="py-2">Số bài đăng</th>
-                        <th class="py-2 text-end">Thao tác</th>
+                        <th class="py-2 text-nowrap" style="width: 60px;">Mã</th>
+                        <th class="py-2 text-nowrap" style="width: 250px;">Tên danh mục</th>
+                        <th class="py-2 text-nowrap">Mô tả</th>
+                        <th class="py-2 text-center text-nowrap" style="width: 120px;">Số bài đăng</th>
+                        <th class="py-2 text-end text-nowrap" style="width: 130px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($categories as $category)
                         <tr>
-                            <td>#{{ $category->id }}</td>
-                            <td><strong class="text-dark">{{ $category->name }}</strong></td>
-                            <td><code>{{ $category->slug }}</code></td>
-                            <td><span class="text-secondary">{{ Str::limit($category->description, 50) ?? 'Không có' }}</span></td>
-                            <td><span class="badge bg-secondary-subtle text-secondary border px-2 py-1">{{ $category->items_count }} bài</span></td>
+                            <td class="text-nowrap text-secondary">#{{ $category->id }}</td>
+                            <td>
+                                <strong class="text-dark d-block">{{ $category->name }}</strong>
+                                <small class="text-muted">Slug: <code>{{ $category->slug }}</code></small>
+                            </td>
+                            <td><span class="text-secondary">{{ $category->description ?? 'Không có mô tả' }}</span></td>
+                            <td class="text-center"><span class="badge bg-secondary-subtle text-secondary border px-2 py-1">{{ $category->items_count }} bài</span></td>
                             <td class="text-end">
                                 <div class="d-inline-flex gap-1 flex-nowrap justify-content-end">
                                     <a href="{{ route('admin.categories.edit', $category) }}" class="btn btn-outline-warning btn-sm py-1 px-2 fw-medium text-dark text-nowrap">

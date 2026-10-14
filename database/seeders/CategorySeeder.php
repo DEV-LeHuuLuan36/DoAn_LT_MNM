@@ -49,6 +49,11 @@ class CategorySeeder extends Seeder
                 'slug' => 'binh-nuoc-do-dung-ca-nhan',
                 'description' => 'Bình giữ nhiệt, áo khoác, nón bảo hiểm, dù che mưa, kính mắt.',
             ],
+            [
+                'name' => 'Mục khác',
+                'slug' => 'muc-khac',
+                'description' => 'Các loại đồ dùng, vật dụng cá nhân khác chưa nằm trong các danh mục trên.',
+            ],
         ];
 
         foreach ($categories as $cat) {

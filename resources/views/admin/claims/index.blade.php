@@ -15,19 +15,19 @@
     </div>
 
     <!-- Bộ lọc trạng thái claim -->
-    <form action="{{ route('admin.claims.index') }}" method="GET" class="row g-2 mb-4 bg-light p-3 rounded-3 border">
+    <form action="{{ route('admin.claims.index') }}" method="GET" class="row g-2 mb-4 bg-light p-3 rounded-3 border align-items-end">
         <div class="col-md-4">
             <label for="status" class="form-label small fw-semibold text-secondary text-uppercase mb-1">Trạng thái yêu cầu:</label>
-            <select name="status" id="status" class="form-select form-select-sm py-2">
+            <select name="status" id="status" class="form-select py-2">
                 <option value="">Tất cả trạng thái</option>
                 <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Chờ duyệt – Đang xử lý</option>
                 <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Đã duyệt – Trao trả</option>
                 <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Từ chối</option>
             </select>
         </div>
-        <div class="col-md-2 d-flex align-items-end gap-1">
-            <button type="submit" class="btn btn-primary btn-sm fw-semibold w-100 py-2">Lọc</button>
-            <a href="{{ route('admin.claims.index') }}" class="btn btn-outline-secondary btn-sm py-2 px-3">Đặt lại</a>
+        <div class="col-md-auto d-flex gap-2 align-items-end">
+            <button type="submit" class="btn btn-primary text-nowrap px-3 py-2">Lọc</button>
+            <a href="{{ route('admin.claims.index') }}" class="btn btn-outline-secondary text-nowrap px-3 py-2">Đặt lại</a>
         </div>
     </form>
 
@@ -40,40 +40,38 @@
             <table class="table table-hover align-middle small mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="py-2">Mã</th>
-                        <th class="py-2">Người gửi yêu cầu</th>
-                        <th class="py-2">Bài đăng đồ vật</th>
-                        <th class="py-2" style="min-width: 280px; max-width: 380px;">Đặc điểm nhận dạng chứng minh</th>
-                        <th class="py-2">Thời gian</th>
-                        <th class="py-2">Trạng thái</th>
-                        <th class="py-2">Ghi chú của Admin</th>
-                        <th class="py-2 text-end">Thao tác xử lý</th>
+                        <th class="py-2 text-nowrap" style="width: 55px;">Mã</th>
+                        <th class="py-2 text-nowrap" style="width: 190px;">Người gửi yêu cầu</th>
+                        <th class="py-2 text-nowrap" style="width: 220px;">Bài đăng liên quan</th>
+                        <th class="py-2 text-nowrap">Nội dung chứng minh &amp; Ghi chú</th>
+                        <th class="py-2 text-nowrap" style="width: 130px;">Trạng thái</th>
+                        <th class="py-2 text-end text-nowrap" style="width: 140px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($claims as $claim)
                         <tr>
-                            <td>#{{ $claim->id }}</td>
+                            <td class="text-nowrap text-secondary">#{{ $claim->id }}</td>
                             <td>
                                 <strong class="d-block text-dark">{{ $claim->user->name }}</strong>
-                                <span class="text-muted" style="font-size: 0.75rem;">MSSV: {{ $claim->user->student_code ?? 'Chưa cập nhật' }}</span>
-                                <div class="text-muted" style="font-size: 0.75rem;">SĐT: {{ $claim->user->phone ?? 'N/A' }}</div>
+                                <div class="small text-muted">MSSV: {{ $claim->user->student_code ?? 'Chưa cập nhật' }} | SĐT: {{ $claim->user->phone ?? 'N/A' }}</div>
+                                <div class="small text-muted">Gửi lúc: {{ $claim->created_at->format('d/m/Y H:i') }}</div>
                             </td>
                             <td>
-                                <a href="{{ route('items.show', $claim->item) }}" target="_blank" class="fw-semibold text-dark text-decoration-none">
-                                    {{ Str::limit($claim->item->title, 35) }}
+                                <a href="{{ route('items.show', $claim->item) }}" target="_blank" class="fw-semibold text-dark text-decoration-none d-block">
+                                    {{ Str::limit($claim->item->title, 40) }}
                                 </a>
-                                <div class="text-muted" style="font-size: 0.75rem;">
+                                <div class="small text-muted">
                                     Đăng bởi: {{ $claim->item->user->name }}
                                 </div>
                             </td>
-                            <td style="min-width: 280px; max-width: 380px;">
-                                <div class="p-2 bg-light rounded-2 border text-secondary" style="white-space: pre-wrap; font-size: 0.825rem; line-height: 1.5;">
-                                    {{ $claim->message }}
-                                </div>
-                            </td>
-                            <td>{{ $claim->created_at->format('d/m/Y H:i') }}</td>
                             <td>
+                                <div class="p-2 bg-light rounded border small text-secondary">{{ trim($claim->message) }}</div>
+                                @if($claim->admin_note)
+                                    <div class="small text-muted mt-1"><strong>Ghi chú Admin:</strong> {{ $claim->admin_note }}</div>
+                                @endif
+                            </td>
+                            <td class="text-nowrap">
                                 @if($claim->status === 'pending')
                                     <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">Chờ duyệt</span>
                                 @elseif($claim->status === 'approved')
@@ -82,13 +80,10 @@
                                     <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">Từ chối</span>
                                 @endif
                             </td>
-                            <td>
-                                <small class="text-muted">{{ $claim->admin_note ?? 'Chưa có ghi chú' }}</small>
-                            </td>
                             <td class="text-end">
                                 @if($claim->status === 'pending')
-                                    <button type="button" class="btn btn-primary btn-sm py-1 px-2 fw-medium text-nowrap" data-bs-toggle="modal" data-bs-target="#claimModal{{ $claim->id }}">
-                                        Đối chiếu &amp; Xử lý
+                                    <button type="button" class="btn btn-primary btn-sm py-1 px-3 fw-medium text-nowrap" data-bs-toggle="modal" data-bs-target="#claimModal{{ $claim->id }}">
+                                        Xử lý
                                     </button>
 
                                     <!-- Modal Xử lý Claim -->
@@ -112,9 +107,7 @@
                                                         </div>
                                                         <div class="mb-3">
                                                             <label class="form-label fw-semibold text-secondary">Mô tả đặc điểm chứng minh của người gửi:</label>
-                                                            <div class="p-2 bg-light rounded-2 border text-dark" style="white-space: pre-wrap;">
-                                                                {{ $claim->message }}
-                                                            </div>
+                                                            <div class="p-3 bg-light rounded border small text-dark">{{ trim($claim->message) }}</div>
                                                         </div>
 
                                                         <div class="mb-3">
@@ -139,7 +132,7 @@
                                         </div>
                                     </div>
                                 @else
-                                    <span class="badge bg-secondary-subtle text-secondary border">Đã hoàn tất</span>
+                                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">Đã hoàn tất</span>
                                 @endif
                             </td>
                         </tr>
