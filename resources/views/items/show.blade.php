@@ -119,7 +119,7 @@
                             </tr>
                             <tr>
                                 <th class="bg-light">Thông tin liên hệ:</th>
-                                <td class="fw-semibold">{{ $item->contact_info ?? 'Trao đổi qua bình luận hoặc gửi yêu cầu nhận đồ' }}</td>
+                                <td class="fw-semibold">{{ $item->contact_info ?: ($item->type === 'found' ? 'Trao đổi qua bình luận hoặc gửi yêu cầu nhận đồ' : 'Trao đổi qua bình luận hoặc liên hệ người đăng') }}</td>
                             </tr>
                             <tr>
                                 <th class="bg-light">Trạng thái hiện tại:</th>
@@ -167,7 +167,7 @@
         </div>
 
         <!-- Section Bình luận (Comments) -->
-        <section class="card card-custom p-4 border-0 shadow-sm rounded-3" aria-label="Khu vực trao đổi bình luận">
+        <section class="card card-custom p-4 border-0 shadow-sm rounded-3" id="comments-section" aria-label="Khu vực trao đổi bình luận">
             <h2 class="h5 fw-bold text-dark border-start border-primary border-4 ps-2 mb-3">
                 Bình luận &amp; Trao đổi ({{ $comments->count() }})
             </h2>
@@ -226,58 +226,147 @@
 
     <!-- Cột phải: Form Yêu cầu nhận đồ (Claim) & Bài đăng liên quan -->
     <aside class="col-lg-4">
-        <!-- Khung Yêu cầu nhận lại đồ (F05) -->
-        <section class="card card-custom p-4 mb-4 border-0 shadow-sm rounded-3 border-top border-4 border-warning">
-            <h2 class="h5 fw-bold text-dark mb-2">Yêu cầu nhận lại đồ</h2>
-            <p class="small text-secondary mb-3">
-                Nếu đây là tài sản của bạn, hãy điền các đặc điểm nhận dạng đặc trưng mà chỉ chủ sở hữu mới biết để đối chiếu xác minh.
-            </p>
+        @if($item->type === 'found')
+            <!-- Khung Yêu cầu nhận lại đồ (F05) - Dành riêng cho Đồ nhặt được -->
+            <section class="card card-custom p-4 mb-4 border-0 shadow-sm rounded-3 border-top border-4 border-warning">
+                <h2 class="h5 fw-bold text-dark mb-2">Yêu cầu nhận lại đồ</h2>
+                <p class="small text-secondary mb-3">
+                    Nếu đây là tài sản của bạn, hãy điền các đặc điểm nhận dạng đặc trưng mà chỉ chủ sở hữu mới biết để đối chiếu xác minh.
+                </p>
 
-            @if($item->status === 'returned')
-                <div class="alert alert-success border-0 small mb-0 fw-semibold rounded-3">
-                    Đồ vật này đã được trao trả hoàn tất cho chủ sở hữu.
-                </div>
-            @elseif($item->status !== 'approved')
-                <div class="alert alert-warning border-0 small mb-0 rounded-3">
-                    Bài đăng đang chờ phê duyệt từ Ban Quản trị trước khi có thể gửi yêu cầu nhận đồ.
-                </div>
-            @elseif(Auth::check() && Auth::id() === $item->user_id)
-                <div class="alert alert-info border-0 small mb-0 rounded-3">
-                    Đây là bài đăng do chính bạn tạo. Bạn không thể gửi yêu cầu nhận đồ cho bài của mình.
-                </div>
-            @elseif($userPendingClaim)
-                <div class="alert alert-warning border-0 small mb-0 rounded-3">
-                    <strong class="d-block mb-1">Đã gửi yêu cầu xác minh</strong>
-                    Bạn đã gửi một yêu cầu xác minh cho bài đăng này và đang chờ xét duyệt.
-                    <hr class="my-2">
-                    <form action="{{ route('claims.destroy', $userPendingClaim) }}" method="POST" onsubmit="return confirm('Bạn có muốn hủy yêu cầu này không?');">
+                @if($item->status === 'returned')
+                    <div class="alert alert-success border-0 small mb-0 fw-semibold rounded-3">
+                        Đồ vật này đã được trao trả hoàn tất cho chủ sở hữu.
+                    </div>
+                @elseif($item->status !== 'approved')
+                    <div class="alert alert-warning border-0 small mb-0 rounded-3">
+                        Bài đăng đang chờ phê duyệt từ Ban Quản trị trước khi có thể gửi yêu cầu nhận đồ.
+                    </div>
+                @elseif(Auth::check() && Auth::id() === $item->user_id)
+                    <div class="alert alert-info border-0 small mb-0 rounded-3">
+                        Đây là bài đăng do chính bạn tạo. Bạn không thể gửi yêu cầu nhận đồ cho bài của mình.
+                    </div>
+                @elseif($userPendingClaim)
+                    <div class="alert alert-warning border-0 small mb-0 rounded-3">
+                        <strong class="d-block mb-1">Đã gửi yêu cầu xác minh</strong>
+                        Bạn đã gửi một yêu cầu xác minh cho bài đăng này và đang chờ xét duyệt.
+                        <hr class="my-2">
+                        <form action="{{ route('claims.destroy', $userPendingClaim) }}" method="POST" onsubmit="return confirm('Bạn có muốn hủy yêu cầu này không?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100 fw-semibold">Hủy yêu cầu đã gửi</button>
+                        </form>
+                    </div>
+                @elseif(Auth::check())
+                    <form action="{{ route('claims.store', $item) }}" method="POST">
                         @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 fw-semibold">Hủy yêu cầu đã gửi</button>
+                        <div class="mb-3">
+                            <label for="claim_message" class="form-label small fw-semibold text-secondary text-uppercase">Mô tả đặc điểm chứng minh sở hữu <span class="text-danger">*</span></label>
+                            <textarea name="message" id="claim_message" rows="4" class="form-control @error('message') is-invalid @enderror" required placeholder="Mô tả màu sắc chi tiết, số seri, vết xước riêng, hình nền điện thoại, hoặc chi tiết đặc biệt (tối thiểu 20 ký tự)...">{{ old('message') }}</textarea>
+                            <div class="form-text small">Yêu cầu tối thiểu 20 ký tự để Admin và người nhặt đối chiếu.</div>
+                            @error('message')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="btn btn-warning fw-semibold w-100 py-2">
+                            Gửi yêu cầu nhận lại đồ
+                        </button>
                     </form>
-                </div>
-            @elseif(Auth::check())
-                <form action="{{ route('claims.store', $item) }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="claim_message" class="form-label small fw-semibold text-secondary text-uppercase">Mô tả đặc điểm chứng minh sở hữu <span class="text-danger">*</span></label>
-                        <textarea name="message" id="claim_message" rows="4" class="form-control @error('message') is-invalid @enderror" required placeholder="Mô tả màu sắc chi tiết, số seri, vết xước riêng, hình nền điện thoại, hoặc chi tiết đặc biệt (tối thiểu 20 ký tự)...">{{ old('message') }}</textarea>
-                        <div class="form-text small">Yêu cầu tối thiểu 20 ký tự để Admin và người nhặt đối chiếu.</div>
-                        @error('message')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                @else
+                    <div class="alert alert-secondary border-0 small mb-0 rounded-3">
+                        Vui lòng <a href="{{ route('login') }}" class="fw-semibold text-dark">đăng nhập</a> tài khoản HUIT để gửi yêu cầu nhận lại đồ.
+                    </div>
+                @endif
+            </section>
+        @else
+            <!-- Khung Thông tin liên hệ người tìm đồ - Dành riêng cho Đồ bị mất -->
+            <section class="card card-custom p-4 mb-4 border-0 shadow-sm rounded-3 border-top border-4 border-primary">
+                <h2 class="h5 fw-bold text-dark mb-2">Thông tin liên hệ người tìm đồ</h2>
+
+                @if(Auth::check() && Auth::id() === $item->user_id)
+                    <p class="small text-secondary mb-3">
+                        Bạn là người đăng bài tìm kiếm đồ bị mất này. Dưới đây là trạng thái hiện tại và các thao tác quản lý bài viết của bạn:
+                    </p>
+
+                    <div class="p-3 bg-light rounded-3 border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-secondary fw-semibold">Trạng thái bài đăng:</span>
+                            @if($item->status === 'returned')
+                                <span class="badge bg-success text-white rounded-pill px-2 py-1">Đã tìm thấy / Đã trả</span>
+                            @elseif($item->status === 'approved')
+                                <span class="badge bg-primary text-white rounded-pill px-2 py-1">Đang tìm kiếm</span>
+                            @elseif($item->status === 'pending')
+                                <span class="badge bg-warning text-dark rounded-pill px-2 py-1">Chờ Admin duyệt</span>
+                            @elseif($item->status === 'rejected')
+                                <span class="badge bg-danger text-white rounded-pill px-2 py-1">Bị từ chối</span>
+                            @endif
+                        </div>
+                        <div class="small text-muted">
+                            <span>Ngày đăng: {{ $item->created_at->format('d/m/Y H:i') }}</span>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-warning fw-semibold w-100 py-2">
-                        Gửi yêu cầu nhận lại đồ
-                    </button>
-                </form>
-            @else
-                <div class="alert alert-secondary border-0 small mb-0 rounded-3">
-                    Vui lòng <a href="{{ route('login') }}" class="fw-semibold text-dark">đăng nhập</a> tài khoản HUIT để gửi yêu cầu nhận lại đồ.
-                </div>
-            @endif
-        </section>
+                    <div class="d-grid gap-2">
+                        <a href="{{ route('items.edit', $item) }}" class="btn btn-warning btn-sm fw-semibold py-2">
+                            Chỉnh sửa bài đăng
+                        </a>
+                        <form action="{{ route('items.destroy', $item) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài đăng này không? Hành động này không thể hoàn tác.');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger btn-sm fw-semibold w-100 py-2">
+                                Xóa bài đăng
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <div class="alert alert-info border-0 small mb-3 rounded-3" style="background-color: #e8f4fd; color: #004085; line-height: 1.6;">
+                        Bạn tình cờ nhìn thấy hoặc nhặt được món đồ này? Hãy liên hệ ngay với người đăng theo thông tin dưới đây hoặc để lại bình luận bên dưới để giúp bạn ấy nhận lại tài sản:
+                    </div>
+
+                    @if($item->status === 'returned')
+                        <div class="alert alert-success border-0 small mb-3 fw-semibold rounded-3">
+                            Đồ vật này đã được tìm thấy và trao trả hoàn tất cho chủ sở hữu!
+                        </div>
+                    @endif
+
+                    <div class="p-3 bg-light rounded-3 border mb-3">
+                        <div class="mb-2 pb-2 border-bottom">
+                            <span class="small text-muted d-block mb-1">Người đăng:</span>
+                            <strong class="text-dark fs-6">{{ $item->user->name }}</strong>
+                            @if($item->user->student_code)
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle ms-1" style="font-size: 0.75rem;">MSSV: {{ $item->user->student_code }}</span>
+                            @endif
+                        </div>
+
+                        <div class="mb-2 pb-2 border-bottom">
+                            <span class="small text-muted d-block mb-1">Thông tin liên hệ:</span>
+                            <span class="fw-semibold text-dark">{{ $item->contact_info ?: 'Liên hệ qua số điện thoại hoặc email bên dưới' }}</span>
+                        </div>
+
+                        @if($item->user->phone)
+                            <div class="mb-2 pb-2 border-bottom">
+                                <span class="small text-muted d-block mb-1">Số điện thoại:</span>
+                                <a href="tel:{{ $item->user->phone }}" class="fw-bold text-primary text-decoration-none">
+                                    {{ $item->user->phone }}
+                                </a>
+                            </div>
+                        @endif
+
+                        <div>
+                            <span class="small text-muted d-block mb-1">Địa chỉ Email:</span>
+                            <a href="mailto:{{ $item->user->email }}" class="fw-semibold text-primary text-decoration-none text-break">
+                                {{ $item->user->email }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <a href="#comments-section" class="btn btn-outline-primary btn-sm fw-semibold w-100 py-2" onclick="const el = document.getElementById('comment_content'); if(el) { setTimeout(() => el.focus(), 150); }">
+                        Gửi bình luận báo tin
+                    </a>
+                @endif
+            </section>
+        @endif
 
         <!-- Khung Bài đăng liên quan -->
         <section class="card card-custom p-4 border-0 shadow-sm rounded-3">

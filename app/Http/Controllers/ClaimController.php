@@ -11,6 +11,11 @@ class ClaimController extends Controller
 {
     public function store(Request $request, Item $item)
     {
+        // Chỉ cho phép gửi yêu cầu nhận đồ đối với bài đăng Đồ nhặt được (found)
+        if ($item->type !== 'found') {
+            return back()->with('error', 'Chức năng yêu cầu nhận đồ chỉ áp dụng cho bài đăng Đồ nhặt được.');
+        }
+
         // Không cho phép chủ bài đăng tự gửi claim nhận đồ của chính mình
         abort_if($item->user_id === Auth::id(), 403, 'Bạn không thể gửi yêu cầu nhận lại cho chính bài đăng của mình.');
 
