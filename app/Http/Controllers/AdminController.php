@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AdminController extends Controller
 {
@@ -170,6 +171,12 @@ class AdminController extends Controller
         if ($request->has('toggle_lock')) {
             $user->is_locked = !$user->is_locked;
             $user->save();
+
+            // Nếu tài khoản bị khóa, xóa phiên đăng nhập trong bảng sessions (nếu bảng sessions tồn tại)
+            if ($user->is_locked && Schema::hasTable('sessions')) {
+                DB::table('sessions')->where('user_id', $user->id)->delete();
+            }
+
             $statusText = $user->is_locked ? 'khóa' : 'mở khóa';
             return back()->with('success', "Đã {$statusText} tài khoản người dùng thành công.");
         }
@@ -206,6 +213,10 @@ class AdminController extends Controller
 
         if ($user->avatar && file_exists(public_path('images/' . $user->avatar))) {
             @unlink(public_path('images/' . $user->avatar));
+        }
+
+        if (Schema::hasTable('sessions')) {
+            DB::table('sessions')->where('user_id', $user->id)->delete();
         }
 
         $user->delete();

@@ -16,7 +16,21 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        if (Auth::user()->is_locked) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Tài khoản của bạn đã bị khóa bởi Quản trị viên.'])
+                ->with('error', 'Tài khoản của bạn đã bị khóa bởi Quản trị viên.');
+        }
+
+        if (Auth::user()->role !== 'admin') {
             abort(403, 'Bạn không có quyền truy cập trang quản trị.');
         }
 
