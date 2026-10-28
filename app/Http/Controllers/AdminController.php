@@ -146,9 +146,25 @@ class AdminController extends Controller
 
     public function updateUser(Request $request, User $user)
     {
-        // Không thể tự khóa hoặc hạ quyền chính tài khoản đang đăng nhập
+        $currentUser = Auth::user();
+        $isSuperAdmin = ($currentUser && ($currentUser->id === 1 || $currentUser->email === 'admin@huit.edu.vn'));
+        $isTargetSuperAdmin = ($user->id === 1 || $user->email === 'admin@huit.edu.vn');
+
+        // 1. Chặn tự thao tác trên chính mình
         if ($user->id === Auth::id()) {
-            return back()->with('error', 'Bạn không thể thao tác trên chính tài khoản của mình.');
+            return back()->with('error', 'Bạn không thể tự thay đổi quyền, khóa hoặc xóa tài khoản đang đăng nhập.');
+        }
+
+        // 2. Bảo vệ bất khả xâm phạm cho Super Admin gốc
+        if ($isTargetSuperAdmin) {
+            return back()->with('error', 'Không thể khóa, hạ quyền hoặc xóa tài khoản Quản trị viên tối cao (Super Admin).');
+        }
+
+        // 3. Phân cấp quyền giữa Super Admin và Admin phụ
+        if (!$isSuperAdmin) {
+            if ($user->role === 'admin' || $request->filled('role')) {
+                return back()->with('error', 'Chỉ Quản trị viên tối cao (Super Admin) mới có quyền thay đổi vai trò hoặc tác động lên tài khoản Quản trị viên khác.');
+            }
         }
 
         if ($request->has('toggle_lock')) {
@@ -169,8 +185,23 @@ class AdminController extends Controller
 
     public function destroyUser(User $user)
     {
+        $currentUser = Auth::user();
+        $isSuperAdmin = ($currentUser && ($currentUser->id === 1 || $currentUser->email === 'admin@huit.edu.vn'));
+        $isTargetSuperAdmin = ($user->id === 1 || $user->email === 'admin@huit.edu.vn');
+
+        // 1. Chặn tự thao tác trên chính mình
         if ($user->id === Auth::id()) {
-            return back()->with('error', 'Bạn không thể tự xóa tài khoản của chính mình.');
+            return back()->with('error', 'Bạn không thể tự thay đổi quyền, khóa hoặc xóa tài khoản đang đăng nhập.');
+        }
+
+        // 2. Bảo vệ bất khả xâm phạm cho Super Admin gốc
+        if ($isTargetSuperAdmin) {
+            return back()->with('error', 'Không thể khóa, hạ quyền hoặc xóa tài khoản Quản trị viên tối cao (Super Admin).');
+        }
+
+        // 3. Phân cấp quyền giữa Super Admin và Admin phụ
+        if (!$isSuperAdmin && $user->role === 'admin') {
+            return back()->with('error', 'Chỉ Quản trị viên tối cao (Super Admin) mới có quyền thay đổi vai trò hoặc tác động lên tài khoản Quản trị viên khác.');
         }
 
         if ($user->avatar && file_exists(public_path('images/' . $user->avatar))) {

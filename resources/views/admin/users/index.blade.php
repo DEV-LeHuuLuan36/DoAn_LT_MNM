@@ -51,7 +51,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $isCurrentSuperAdmin = (Auth::id() === 1 || (Auth::user() && Auth::user()->email === 'admin@huit.edu.vn'));
+                    @endphp
                     @foreach($users as $user)
+                        @php
+                            $isTargetSuperAdmin = ($user->id === 1 || $user->email === 'admin@huit.edu.vn');
+                        @endphp
                         <tr>
                             <td class="text-nowrap text-secondary">#{{ $user->id }}</td>
                             <td>
@@ -67,7 +73,9 @@
                             </td>
                             <td>
                                 <div class="d-flex flex-wrap gap-1 align-items-center">
-                                    @if($user->role === 'admin')
+                                    @if($isTargetSuperAdmin)
+                                        <span class="badge bg-danger text-white border border-danger px-2 py-1 fw-semibold">Quản trị viên gốc</span>
+                                    @elseif($user->role === 'admin')
                                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Quản trị viên</span>
                                     @else
                                         <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">Sinh viên</span>
@@ -81,42 +89,77 @@
                                 </div>
                             </td>
                             <td class="text-end">
-                                @if($user->id !== Auth::id())
-                                    <div class="d-inline-flex gap-1 flex-nowrap justify-content-end">
-                                        <!-- Khóa / Mở khóa -->
-                                        <form action="{{ route('admin.users.update', $user) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="toggle_lock" value="1">
-                                            @if($user->is_locked)
-                                                <button type="submit" class="btn btn-outline-success btn-sm py-1 px-2 fw-medium text-nowrap" onclick="return confirm('Bạn có chắc muốn mở khóa tài khoản này?');">Mở khóa</button>
-                                            @else
-                                                <button type="submit" class="btn btn-outline-warning btn-sm py-1 px-2 fw-medium text-nowrap text-dark" onclick="return confirm('Bạn có chắc muốn khóa tài khoản này?');">Khóa</button>
-                                            @endif
-                                        </form>
-
-                                        <!-- Thay đổi vai trò Admin / User -->
-                                        <form action="{{ route('admin.users.update', $user) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('PATCH')
-                                            @if($user->role === 'admin')
-                                                <input type="hidden" name="role" value="user">
-                                                <button type="submit" class="btn btn-outline-secondary btn-sm py-1 px-2 fw-medium text-nowrap" onclick="return confirm('Bạn có chắc muốn giáng quyền Admin thành User?');">Hạ quyền</button>
-                                            @else
-                                                <input type="hidden" name="role" value="admin">
-                                                <button type="submit" class="btn btn-outline-primary btn-sm py-1 px-2 fw-medium text-nowrap" onclick="return confirm('Bạn có chắc muốn nâng tài khoản này lên Admin?');">Cấp Admin</button>
-                                            @endif
-                                        </form>
-
-                                        <!-- Xóa tài khoản -->
-                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('CẢNH BÁO: Xóa tài khoản sẽ đồng thời xóa tất cả bài đăng, yêu cầu và bình luận liên quan. Bạn có chắc chắn không?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2 fw-medium text-nowrap">Xóa</button>
-                                        </form>
-                                    </div>
-                                @else
+                                {{-- Trường hợp 1: Tài khoản đang đăng nhập --}}
+                                @if($user->id === Auth::id())
                                     <span class="badge bg-secondary-subtle text-secondary border">Tài khoản đang dùng</span>
+
+                                {{-- Trường hợp 2: Quản trị viên tối cao (Super Admin gốc) --}}
+                                @elseif($isTargetSuperAdmin)
+                                    <span class="badge bg-primary-subtle text-primary border">Quản trị viên tối cao</span>
+
+                                {{-- Trường hợp 3: Các tài khoản khác --}}
+                                @else
+                                    @if($isCurrentSuperAdmin)
+                                        <div class="d-inline-flex gap-1 flex-nowrap justify-content-end">
+                                            <!-- Khóa / Mở khóa -->
+                                            <form action="{{ route('admin.users.update', $user) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="toggle_lock" value="1">
+                                                @if($user->is_locked)
+                                                    <button type="submit" class="btn btn-outline-success btn-sm py-1 px-2 fw-medium text-nowrap" onclick="return confirm('Bạn có chắc muốn mở khóa tài khoản này?');">Mở khóa</button>
+                                                @else
+                                                    <button type="submit" class="btn btn-outline-warning btn-sm py-1 px-2 fw-medium text-nowrap text-dark" onclick="return confirm('Bạn có chắc muốn khóa tài khoản này?');">Khóa</button>
+                                                @endif
+                                            </form>
+
+                                            <!-- Thay đổi vai trò Admin / User -->
+                                            <form action="{{ route('admin.users.update', $user) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                @if($user->role === 'admin')
+                                                    <input type="hidden" name="role" value="user">
+                                                    <button type="submit" class="btn btn-outline-secondary btn-sm py-1 px-2 fw-medium text-nowrap" onclick="return confirm('Bạn có chắc muốn giáng quyền Admin thành User?');">Hạ quyền</button>
+                                                @else
+                                                    <input type="hidden" name="role" value="admin">
+                                                    <button type="submit" class="btn btn-outline-primary btn-sm py-1 px-2 fw-medium text-nowrap" onclick="return confirm('Bạn có chắc muốn nâng tài khoản này lên Admin?');">Cấp Admin</button>
+                                                @endif
+                                            </form>
+
+                                            <!-- Xóa tài khoản -->
+                                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('CẢNH BÁO: Xóa tài khoản sẽ đồng thời xóa tất cả bài đăng, yêu cầu và bình luận liên quan. Bạn có chắc chắn không?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2 fw-medium text-nowrap">Xóa</button>
+                                            </form>
+                                        </div>
+                                    @else
+                                        {{-- Admin phụ đang đăng nhập --}}
+                                        @if($user->role === 'admin')
+                                            <span class="badge bg-secondary-subtle text-secondary border">Đồng quản trị viên</span>
+                                        @else
+                                            <div class="d-inline-flex gap-1 flex-nowrap justify-content-end">
+                                                <!-- Khóa / Mở khóa -->
+                                                <form action="{{ route('admin.users.update', $user) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="toggle_lock" value="1">
+                                                    @if($user->is_locked)
+                                                        <button type="submit" class="btn btn-outline-success btn-sm py-1 px-2 fw-medium text-nowrap" onclick="return confirm('Bạn có chắc muốn mở khóa tài khoản này?');">Mở khóa</button>
+                                                    @else
+                                                        <button type="submit" class="btn btn-outline-warning btn-sm py-1 px-2 fw-medium text-nowrap text-dark" onclick="return confirm('Bạn có chắc muốn khóa tài khoản này?');">Khóa</button>
+                                                    @endif
+                                                </form>
+
+                                                <!-- Xóa tài khoản -->
+                                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('CẢNH BÁO: Xóa tài khoản sẽ đồng thời xóa tất cả bài đăng, yêu cầu và bình luận liên quan. Bạn có chắc chắn không?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2 fw-medium text-nowrap">Xóa</button>
+                                                </form>
+                                            </div>
+                                        @endif
+                                    @endif
                                 @endif
                             </td>
                         </tr>
